@@ -89,15 +89,18 @@ export class InventoryPage {
     await product.getByRole('button', { name: 'Add to cart' }).click();
   } 
 
-  // Méthode qui clique sur le lien allant sur le détail du Panier.
-  async clickToCart(): Promise<void> {   
-    await this.shoppingCartLink.click();
+  // Méthode qui clique sur le lien allant sur le détail du Panier et attend l'ouverture de la page.
+  async clickToCart(): Promise<void> {
+    await Promise.all([
+      this.page.waitForURL('**/cart.html'),
+      this.shoppingCartLink.click()
+    ]);
   } 
 
   // Méthode qui récupère le prix d'un produit
   async getProductPrice(productName: string): Promise<string> {
     const product = this.productItems.filter({ hasText: productName });
     return await product.locator('[data-test="inventory-item-price"]').innerText();
-}
+  }
 
 }
