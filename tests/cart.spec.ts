@@ -43,18 +43,47 @@ test.describe('Panier', () => {
     await inventoryPage.clickToCart();
 
     // Vérifier que le titre Your Cart est affiché
-    await expect(cartPage.title).toHaveText('Your Cart');    
+    await expect(cartPage.title).toHaveText('Your Cart');
 
     // Vérifier le nom du produit
-    await expect(cartPage.inventoryItemNames).toHaveText('Sauce Labs Backpack');    
+    await expect(cartPage.inventoryItemNames).toHaveText('Sauce Labs Backpack');
 
     // Vérifier le prix du produit
     await expect(cartPage.inventoryItemPrices).toHaveText(pricePageProduct);
-    console.log('Prix du produit sur la page panier :', await cartPage.inventoryItemPrices.innerText());  
+    console.log('Prix du produit sur la page panier :', await cartPage.inventoryItemPrices.innerText());
 
     // Vérifier la quantité du produit
-    await expect(cartPage.itemQuantity).toHaveText('1');  
+    await expect(cartPage.itemQuantity).toHaveText('1');
 
   });
 
-});  
+
+  test('CT02 - Retirer un produit du panier', async ({ page }) => {
+
+    const inventoryPage = new InventoryPage(page);
+    const cartPage = new CartPage(page);
+
+    // Ajouter un produit au panier
+    await inventoryPage.addToCart('Sauce Labs Backpack');
+
+    // Vérifier que le compteur du panier affiche 1
+    await expect(inventoryPage.shoppingCartBadge).toHaveText('1');
+
+    // Ouvrir le panier
+    await inventoryPage.clickToCart();
+
+    // Vérifier que le produit est présent avant suppression
+    await expect(cartPage.inventoryItemNames).toHaveText('Sauce Labs Backpack');
+
+    // Retirer le produit du panier
+    await cartPage.removeFromCart('Sauce Labs Backpack');
+
+    // Vérifier que le produit n'est plus présent dans le panier
+    await expect(cartPage.inventoryItemNames).toHaveCount(0);
+
+    // Vérifier que le compteur du panier disparaît lorsque le panier est vide
+    await expect(cartPage.shoppingCartBadge).toHaveCount(0);
+
+  });
+
+});
