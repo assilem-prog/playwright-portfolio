@@ -72,6 +72,9 @@ test.describe('Panier', () => {
     // Ouvrir le panier
     await inventoryPage.clickToCart();
 
+    // Vérifier que la page panier est affichée
+    await expect(cartPage.title).toHaveText('Your Cart');
+
     // Vérifier que le produit est présent avant suppression
     await expect(cartPage.inventoryItemNames).toHaveText('Sauce Labs Backpack');
 
