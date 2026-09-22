@@ -44,9 +44,29 @@ export class CartPage {
     this.shoppingCartBadge = page.locator('[data-test="shopping-cart-badge"]');
   }
 
+  // Méthode qui retourne le bloc correspondant au produit demandé.
+  getProduct(productName: string): Locator {
+    return this.productItems.filter({ hasText: productName });
+  }
+
+  // Méthode qui retourne le nom d'un produit précis du panier.
+  getProductName(productName: string): Locator {
+    return this.getProduct(productName).locator('[data-test="inventory-item-name"]');
+  }
+
+  // Méthode qui retourne le prix d'un produit précis du panier.
+  getProductPrice(productName: string): Locator {
+    return this.getProduct(productName).locator('[data-test="inventory-item-price"]');
+  }
+
+  // Méthode qui retourne la quantité d'un produit précis du panier.
+  getProductQuantity(productName: string): Locator {
+    return this.getProduct(productName).locator('[data-test="item-quantity"]');
+  }
+
   // Méthode qui permet de retirer un produit du panier en prenant son nom en paramètre.
   async removeFromCart(productToRemove: string): Promise<void> {
-    const product = this.productItems.filter({ hasText: productToRemove });
+    const product = this.getProduct(productToRemove);
     await product.getByRole('button', { name: 'Remove' }).click();
   }
 }
