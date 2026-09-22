@@ -6,3 +6,10 @@ export const expectedProductNames = [
   'Sauce Labs Onesie',
   'Test.allTheThings() T-Shirt (Red)',
 ];
+
+// Produits utilisés dans le scénario d'ajout multiple au panier.
+export const productsToAdd = [
+  'Sauce Labs Backpack',
+  'Sauce Labs Bike Light',
+  'Sauce Labs Onesie',
+];
