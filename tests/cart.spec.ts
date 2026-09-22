@@ -34,7 +34,7 @@ test.describe('Panier', () => {
 
     // Récupérer le prix du produit
     const pricePageProduct = await inventoryPage.getProductPrice('Sauce Labs Backpack');
-    console.log('Prix du produit sur la page produit :', pricePageProduct);
+    console.log('Prix du produit sur la page catalogue :', pricePageProduct);
 
     // Vérifier le compteur du panier
     await expect(inventoryPage.shoppingCartBadge).toHaveText('1');
@@ -50,7 +50,7 @@ test.describe('Panier', () => {
 
     // Vérifier le prix du produit
     await expect(cartPage.inventoryItemPrices).toHaveText(pricePageProduct);
-    console.log('Prix du produit sur la page panier :', cartPage.inventoryItemPrices);  
+    console.log('Prix du produit sur la page panier :', await cartPage.inventoryItemPrices.innerText());  
 
     // Vérifier la quantité du produit
     await expect(cartPage.itemQuantity).toHaveText('1');  
