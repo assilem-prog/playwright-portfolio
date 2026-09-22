@@ -3,6 +3,7 @@ import { LoginPage } from '../pages/login.page';
 import { InventoryPage } from '../pages/inventory.page';
 import { users } from '../test-data/users';
 import { CartPage } from '../pages/cart.page';
+import { productsToAdd } from '../test-data/products';
 
 
 test.describe('Panier', () => {
@@ -86,6 +87,42 @@ test.describe('Panier', () => {
 
     // Vérifier que le compteur du panier disparaît lorsque le panier est vide
     await expect(cartPage.shoppingCartBadge).toHaveCount(0);
+
+  });
+
+
+  test('CT03 - Vérifier le contenu du panier après l’ajout de plusieurs produits', async ({ page }) => {
+
+    const inventoryPage = new InventoryPage(page);
+    const cartPage = new CartPage(page);
+
+    // Mémoriser le nom et le prix des produits avant de les ajouter au panier.
+    const productsWithPrices: { name: string; price: string }[] = [];
+
+    for (const productName of productsToAdd) {
+      const price = await inventoryPage.getProductPrice(productName);
+      productsWithPrices.push({ name: productName, price });
+      await inventoryPage.addToCart(productName);
+    }
+
+    // Vérifier que le compteur du panier correspond au nombre de produits ajoutés.
+    await expect(inventoryPage.shoppingCartBadge).toHaveText(productsToAdd.length.toString());
+
+    // Ouvrir le panier.
+    await inventoryPage.clickToCart();
+
+    // Vérifier que la page panier est affichée.
+    await expect(cartPage.title).toHaveText('Your Cart');
+
+    // Vérifier que le panier contient exactement le nombre de produits ajoutés.
+    await expect(cartPage.productItems).toHaveCount(productsToAdd.length);
+
+    // Vérifier le nom, le prix et la quantité de chaque produit ajouté.
+    for (const product of productsWithPrices) {
+      await expect(cartPage.getProductName(product.name)).toHaveText(product.name);
+      await expect(cartPage.getProductPrice(product.name)).toHaveText(product.price);
+      await expect(cartPage.getProductQuantity(product.name)).toHaveText('1');
+    }
 
   });
 
