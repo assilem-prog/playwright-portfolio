@@ -44,24 +44,45 @@ export class CartPage {
     this.shoppingCartBadge = page.locator('[data-test="shopping-cart-badge"]');
   }
 
-  // Méthode qui retourne le bloc correspondant au produit demandé.
+  // Méthode qui retourne le bloc correspondant au produit demandé à partir de son nom.
   getProduct(productName: string): Locator {
     return this.productItems.filter({ hasText: productName });
   }
 
-  // Méthode qui retourne le nom d'un produit précis du panier.
+  // Méthode qui retourne le bloc correspondant à un produit à partir de son ID technique.
+  getProductById(productId: string): Locator {
+    const productLink = this.page.locator(`[data-test="item-${productId}-title-link"]`);
+    return this.productItems.filter({ has: productLink });
+  }
+
+  // Méthode qui retourne le nom d'un produit précis du panier à partir de son nom.
   getProductName(productName: string): Locator {
     return this.getProduct(productName).locator('[data-test="inventory-item-name"]');
   }
 
-  // Méthode qui retourne le prix d'un produit précis du panier.
+  // Méthode qui retourne le prix d'un produit précis du panier à partir de son nom.
   getProductPrice(productName: string): Locator {
     return this.getProduct(productName).locator('[data-test="inventory-item-price"]');
   }
 
-  // Méthode qui retourne la quantité d'un produit précis du panier.
+  // Méthode qui retourne la quantité d'un produit précis du panier à partir de son nom.
   getProductQuantity(productName: string): Locator {
     return this.getProduct(productName).locator('[data-test="item-quantity"]');
+  }
+
+  // Méthode qui retourne le nom d'un produit précis du panier à partir de son ID technique.
+  getProductNameById(productId: string): Locator {
+    return this.getProductById(productId).locator('[data-test="inventory-item-name"]');
+  }
+
+  // Méthode qui retourne le prix d'un produit précis du panier à partir de son ID technique.
+  getProductPriceById(productId: string): Locator {
+    return this.getProductById(productId).locator('[data-test="inventory-item-price"]');
+  }
+
+  // Méthode qui retourne la quantité d'un produit précis du panier à partir de son ID technique.
+  getProductQuantityById(productId: string): Locator {
+    return this.getProductById(productId).locator('[data-test="item-quantity"]');
   }
 
   // Méthode qui permet de retirer un produit du panier en prenant son nom en paramètre.
