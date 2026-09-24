@@ -96,13 +96,15 @@ test.describe('Panier', () => {
     const inventoryPage = new InventoryPage(page);
     const cartPage = new CartPage(page);
 
-    // Mémoriser le nom et le prix des produits avant de les ajouter au panier.
-    const productsWithPrices: { name: string; price: string }[] = [];
+    // Mémoriser l'ID technique, le nom et le prix affichés sur la page Products.
+    const productReferences: { id: string; name: string; price: string }[] = [];
 
-    for (const productName of productsToAdd) {
-      const price = await inventoryPage.getProductPrice(productName);
-      productsWithPrices.push({ name: productName, price });
-      await inventoryPage.addToCart(productName);
+    for (const product of productsToAdd) {
+      const name = await inventoryPage.getProductNameById(product.id);
+      const price = await inventoryPage.getProductPriceById(product.id);
+
+      productReferences.push({ id: product.id, name, price });
+      await inventoryPage.addToCartById(product.id);
     }
 
     // Vérifier que le compteur du panier correspond au nombre de produits ajoutés.
@@ -117,11 +119,12 @@ test.describe('Panier', () => {
     // Vérifier que le panier contient exactement le nombre de produits ajoutés.
     await expect(cartPage.productItems).toHaveCount(productsToAdd.length);
 
-    // Vérifier le nom, le prix et la quantité de chaque produit ajouté.
-    for (const product of productsWithPrices) {
-      await expect(cartPage.getProductName(product.name)).toHaveText(product.name);
-      await expect(cartPage.getProductPrice(product.name)).toHaveText(product.price);
-      await expect(cartPage.getProductQuantity(product.name)).toHaveText('1');
+    // Vérifier pour chaque ID que le nom et le prix correspondent aux valeurs relevées sur Products,
+    // et que la quantité est égale à 1.
+    for (const product of productReferences) {
+      await expect(cartPage.getProductNameById(product.id)).toHaveText(product.name);
+      await expect(cartPage.getProductPriceById(product.id)).toHaveText(product.price);
+      await expect(cartPage.getProductQuantityById(product.id)).toHaveText('1');
     }
 
   });
