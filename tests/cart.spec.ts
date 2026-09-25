@@ -107,6 +107,8 @@ test.describe('Panier', () => {
       await inventoryPage.addToCartById(product.id);
     }
 
+    console.table(productReferences);
+
     // Vérifier que le compteur du panier correspond au nombre de produits ajoutés.
     await expect(inventoryPage.shoppingCartBadge).toHaveText(productsToAdd.length.toString());
 
