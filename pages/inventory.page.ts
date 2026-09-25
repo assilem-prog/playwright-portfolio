@@ -71,23 +71,50 @@ export class InventoryPage {
 // Méthode qui trie les produits par prix décroissant.
   async sortByPriceHighToLow(): Promise<void> {
     await this.sortDropdown.selectOption({ label: 'Price (high to low)' });
-  } 
+  }
 
  // Méthode qui trie les produits par nom croissant.
   async sortByNameAtoZ(): Promise<void> {
     await this.sortDropdown.selectOption({ label: 'Name (A to Z)' });
-  } 
+  }
 
   // Méthode qui trie les produits par nom décroissant.
   async sortByNameZtoA(): Promise<void> {
     await this.sortDropdown.selectOption({ label: 'Name (Z to A)' });
-  } 
+  }
 
   // Méthode qui permet d'ajouter un produit au panier en prenant son nom en paramètre.
-  async addToCart(productToAdd: string): Promise<void> {   
-    const product = this.productItems.filter({ hasText: productToAdd });   
+  async addToCart(productToAdd: string): Promise<void> {
+    const product = this.productItems.filter({ hasText: productToAdd });
     await product.getByRole('button', { name: 'Add to cart' }).click();
-  } 
+  }
+
+  // Méthode qui retourne le bloc correspondant à un produit à partir de son ID technique.
+  getProductById(productId: string): Locator {
+    const productLink = this.page.locator(`[data-test="item-${productId}-title-link"]`);
+    return this.productItems.filter({ has: productLink });
+  }
+
+  // Méthode qui récupère le nom affiché d'un produit à partir de son ID technique.
+  async getProductNameById(productId: string): Promise<string> {
+    return await this.getProductById(productId)
+      .locator('[data-test="inventory-item-name"]')
+      .innerText();
+  }
+
+  // Méthode qui récupère le prix affiché d'un produit à partir de son ID technique.
+  async getProductPriceById(productId: string): Promise<string> {
+    return await this.getProductById(productId)
+      .locator('[data-test="inventory-item-price"]')
+      .innerText();
+  }
+
+  // Méthode qui ajoute au panier un produit identifié par son ID technique.
+  async addToCartById(productId: string): Promise<void> {
+    await this.getProductById(productId)
+      .getByRole('button', { name: 'Add to cart' })
+      .click();
+  }
 
   // Méthode qui clique sur le lien allant sur le détail du Panier et attend l'ouverture de la page.
   async clickToCart(): Promise<void> {
@@ -95,7 +122,7 @@ export class InventoryPage {
       this.page.waitForURL('**/cart.html'),
       this.shoppingCartLink.click()
     ]);
-  } 
+  }
 
   // Méthode qui récupère le prix d'un produit
   async getProductPrice(productName: string): Promise<string> {
