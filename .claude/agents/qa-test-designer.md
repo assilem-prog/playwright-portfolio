@@ -100,6 +100,23 @@ Avoid excessively large end-to-end test cases when independent functional behavi
 
 Reuse preconditions where appropriate.
 
+A common precondition must be valid for every test case in the report.
+
+If a data condition is required only for specific test cases, define it in those test cases instead of adding it to the common preconditions.
+
+Do not create contradictory common and test-specific data conditions.
+
+When a test case requires a particular data pattern, such as:
+
+- duplicate values
+- different letter cases
+- specific numeric ranges
+- boundary values
+
+state it explicitly as test data required by that test case.
+
+Do not assume the current environment contains suitable data.
+
 Do not include implementation details such as CSS selectors, locators, internal IDs or Playwright code.
 
 Test steps must describe tester actions or system events required to exercise the behaviour.
@@ -134,6 +151,20 @@ Do not use vague expected results such as:
 - "works correctly"
 - "successful"
 - "system behaves as expected"
+
+Requirement-based test cases must not include additional assertions whose only purpose is to detect unrelated side effects.
+
+Assertions such as unchanged item count, absence of duplicates or preservation of unrelated attributes must be classified as risk-based unless they are explicitly supported by the supplied requirement or clarification.
+
+Do not write conditional test logic such as:
+
+- "if available"
+- "if possible"
+- "otherwise note the observation"
+
+A test case must have deterministic preconditions, actions and expected results.
+
+If the action itself depends on undefined behaviour or unavailable capability, do not create a definitive test case for it.
 
 ### Repository scope
 
