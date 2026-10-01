@@ -1,18 +1,19 @@
 ---
 name: qa-workflow
-description: Orchestrates functional requirement review and detailed test design using qa-story-analyst and qa-test-designer, with a mandatory human validation checkpoint between both stages.
+description: Orchestrates functional requirement review, detailed test design and automation coverage analysis using qa-story-analyst, qa-test-designer and qa-automation-analyst, with mandatory human checkpoints after requirement review and after coverage analysis.
 disable-model-invocation: true
 argument-hint: "[User Story, requirement text, or @file]"
 ---
 
 # QA Requirement-to-Test Workflow
 
-Orchestrate functional requirement analysis and test case design.
+Orchestrate functional requirement analysis, test case design and automation coverage analysis.
 
-The two specialist subagents have separate responsibilities:
+The three specialist subagents have separate responsibilities:
 
 - `qa-story-analyst`: reviews requirements for testability, ambiguities, risks and high-level scenarios.
 - `qa-test-designer`: creates detailed functional test cases only after the requirement has been sufficiently clarified.
+- `qa-automation-analyst`: maps the validated functional test cases against the existing Playwright repository to identify covered, partially covered and uncovered behaviours, and potential duplicate automation.
 
 Do not perform either specialist role yourself when the corresponding subagent is available.
 
@@ -89,13 +90,84 @@ Wait for the subagent to finish.
 
 Return the qa-test-designer report to the user.
 
+## Stage 5 - Automation coverage analysis
+
+After `qa-test-designer` has completed the detailed functional test design, invoke the `qa-automation-analyst` subagent.
+
+Provide it with:
+
+1. The complete validated functional test cases produced by `qa-test-designer`.
+2. Their requirement / acceptance criteria traceability.
+3. The existing Playwright repository as the automation baseline.
+
+The automation analyst may inspect:
+
+- `tests/`
+- relevant Page Objects under `pages/`
+- relevant test data under `test-data/`
+
+It must not execute tests or modify any repository file.
+
+It must determine for each validated functional test case whether the existing Playwright repository provides:
+
+- Fully covered
+- Partially covered
+- Not covered
+
+It must also independently identify potential duplicate automation.
+
+Coverage decisions must be based on executable assertions.
+
+Do not treat the following as proof of automated coverage:
+
+- test names
+- comments
+- Page Object methods alone
+- navigation
+- data setup
+- console.log
+- actions without assertions
+
+Wait for the `qa-automation-analyst` to finish.
+
+Present its complete coverage report to the user.
+
+## Stage 6 - Mandatory human automation decision
+
+After the automation coverage report, STOP.
+
+Do NOT create or modify Playwright tests.
+
+Do NOT automatically decide that every uncovered functional test case must be automated.
+
+Do NOT modify Page Objects or test data.
+
+Do NOT execute Playwright.
+
+The user must decide what to do with the identified automation gaps.
+
+Possible user decisions include:
+
+- automate
+- do not automate
+- automate later
+- keep manual
+- investigate further
+- update an existing automated test
+- accept current coverage
+
+Treat only explicit user decisions as authorization for any future automation work.
+
 ## Workflow boundaries
 
-This workflow ends after functional test case design.
+This workflow ends after functional test design, automation coverage analysis,
+and the mandatory human automation decision checkpoint.
+
+A future automation implementation workflow must be started separately.
 
 Do not:
 - write Playwright code
 - execute tests
 - modify application code
-- modify existing test files
+- modify existing test files, Page Objects or test data
 - continue into automation unless the user explicitly starts a separate automation workflow
