@@ -22,6 +22,9 @@ export class CartPage {
   // Pastille qui affiche le nombre d'articles dans le panier.
   readonly shoppingCartBadge: Locator;
 
+  // Bouton "Checkout" permettant de démarrer la commande.
+  readonly checkoutButton: Locator;
+
   // Le constructeur reçoit la page navigateur fournie par Playwright.
   constructor(private page: Page) {
 
@@ -42,6 +45,9 @@ export class CartPage {
 
     // Pastille qui affiche le nombre d'articles dans le panier.
     this.shoppingCartBadge = page.locator('[data-test="shopping-cart-badge"]');
+
+    // Bouton "Checkout" du panier.
+    this.checkoutButton = page.locator('[data-test="checkout"]');
   }
 
   // Méthode qui retourne le bloc correspondant au produit demandé à partir de son nom.
@@ -89,5 +95,13 @@ export class CartPage {
   async removeFromCart(productToRemove: string): Promise<void> {
     const product = this.getProduct(productToRemove);
     await product.getByRole('button', { name: 'Remove' }).click();
+  }
+
+  // Méthode qui clique sur "Checkout" et attend l'ouverture de la page Checkout: Your Information.
+  async clickCheckout(): Promise<void> {
+    await Promise.all([
+      this.page.waitForURL('**/checkout-step-one.html'),
+      this.checkoutButton.click()
+    ]);
   }
 }
