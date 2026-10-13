@@ -11,20 +11,26 @@ test('CT01 - Standard user can log in', async ({ page }) => {
   // Instancier le Page Object de la page Inventory
   const inventoryPage = new InventoryPage(page);
 
-  // Ouvrir la page Login
-  await loginPage.goto();
+  await test.step('Se connecter avec un utilisateur valide', async () => {
 
-  // Se connecter avec l'utilisateur standard
-  await loginPage.login(
-    users.standard.username,
-    users.standard.password
-  );
+    // Ouvrir la page Login
+    await loginPage.goto();
 
-  // Vérifier qu'on est redirigé vers la page Inventory
-  await expect(page).toHaveURL(/inventory\.html/);
+    // Se connecter avec l'utilisateur standard
+    await loginPage.login(
+      users.standard.username,
+      users.standard.password
+    );
+  });
 
-  // Vérifier que la page Inventory affiche le titre Products
-  await expect(inventoryPage.title).toHaveText('Products');
+  await test.step('Vérifier l’accès au catalogue', async () => {
+
+    // Vérifier qu'on est redirigé vers la page Inventory
+    await expect(page).toHaveURL(/inventory\.html/);
+
+    // Vérifier que la page Inventory affiche le titre Products
+    await expect(inventoryPage.title).toHaveText('Products');
+  });
 });
 
 test('CT02 - Locked out user cannot log in', async ({ page }) => {
