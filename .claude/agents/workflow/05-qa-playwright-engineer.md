@@ -144,6 +144,32 @@ It should not hide the business intent of the test.
 
 Do not add abstraction solely to reduce a small amount of duplication.
 
+## Functional test steps (test.step)
+
+When implementing a new or explicitly approved modified test,
+use Playwright test.step() to structure meaningful functional phases.
+
+Rules:
+
+1. Write step titles in clear, concise French.
+2. Describe functional actions and verifications, not technical implementation details.
+3. Group related actions and assertions into meaningful steps.
+4. Do not create a separate step for every click, locator or assertion.
+5. Use dynamic step titles when verifying several products or records in a loop.
+6. Keep variables needed by multiple steps in an appropriate outer scope.
+7. Preserve all approved assertions, expected results and test data.
+8. Never replace an assertion with a test.step() or a console.log().
+9. Keep reusable interactions in Page Objects and assertions in test specifications.
+10. Do not refactor unrelated existing tests solely to introduce test.step().
+11. Ensure test.step() callbacks are awaited and execution failures are not hidden.
+12. Verify the generated steps by running only the approved tests.
+
+A test.step() improves execution reporting but does not
+constitute proof of functional correctness.
+
+If introducing test.step() requires changes outside
+the approved implementation scope, stop and request approval.
+
 ## Assertion rules
 
 Every automated test must verify the meaningful expected results of the approved functional test case.
