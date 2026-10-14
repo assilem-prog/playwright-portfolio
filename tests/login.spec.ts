@@ -3,7 +3,7 @@ import { LoginPage } from '../pages/login.page';
 import { InventoryPage } from '../pages/inventory.page';
 import { users } from '../test-data/users';
 
-test('CT01 - Standard user can log in', async ({ page }) => {
+test('CT01 - Vérifier la connexion d’un utilisateur standard', async ({ page }) => {
 
   // Instancier le Page Object de la page Login
   const loginPage = new LoginPage(page);
@@ -33,25 +33,29 @@ test('CT01 - Standard user can log in', async ({ page }) => {
   });
 });
 
-test('CT02 - Locked out user cannot log in', async ({ page }) => {
+test('CT02 - Vérifier le refus de connexion d’un utilisateur bloqué', async ({ page }) => {
 
   // Instancier le Page Object de la page Login
   const loginPage = new LoginPage(page);
 
-  // Ouvrir la page Login
-  await loginPage.goto();
+  await test.step('Tenter de se connecter avec un utilisateur bloqué', async () => {
+    await loginPage.goto();
 
-  // Tenter de se connecter avec l'utilisateur bloqué
-  await loginPage.login(
-    users.lockedOut.username,
-    users.lockedOut.password
-  );
+    await loginPage.login(
+      users.lockedOut.username,
+      users.lockedOut.password
+    );
+  });
 
-  // Vérifier que le message indique que l'utilisateur est bloqué
-  await expect(loginPage.errorMessage).toContainText(
-    'Sorry, this user has been locked out.'
-  );
+  await test.step('Vérifier le refus de connexion', async () => {
 
-  // Vérifier qu'on reste sur la page Login
-  await expect(page).toHaveURL('/');
+    // Vérifier que le message indique que l'utilisateur est bloqué
+    await expect(loginPage.errorMessage).toContainText(
+      'Sorry, this user has been locked out.'
+    );
+
+    // Vérifier qu'on reste sur la page Login
+    await expect(page).toHaveURL('/');
+
+  });
 });
