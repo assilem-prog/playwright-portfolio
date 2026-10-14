@@ -27,34 +27,49 @@ test.describe('Panier', () => {
     const inventoryPage = new InventoryPage(page);
     const cartPage = new CartPage(page);
 
-    // Vérifier que le titre Products est affiché
-    await expect(inventoryPage.title).toHaveText('Products');
+    await test.step('Ajouter un produit au panier depuis le catalogue', async () => {
 
-    // Ajouter un produit au panier
-    await inventoryPage.addToCart('Sauce Labs Backpack');
+      // Vérifier que le catalogue est affiché
+      await expect(inventoryPage.title).toHaveText('Products');
+
+      // Ajouter le produit au panier
+      await inventoryPage.addToCart('Sauce Labs Backpack');
+
+    });
 
     // Récupérer le prix du produit
     const pricePageProduct = await inventoryPage.getProductPrice('Sauce Labs Backpack');
     console.log('Prix du produit sur la page catalogue :', pricePageProduct);
 
-    // Vérifier le compteur du panier
-    await expect(inventoryPage.shoppingCartBadge).toHaveText('1');
+    await test.step('Vérifier que le compteur du panier affiche 1', async () => {
 
-    // Cliquer sur le bouton du panier pour afficher le détail du panier
-    await inventoryPage.clickToCart();
+      await expect(inventoryPage.shoppingCartBadge).toHaveText('1');
 
-    // Vérifier que le titre Your Cart est affiché
-    await expect(cartPage.title).toHaveText('Your Cart');
+    });
 
-    // Vérifier le nom du produit
-    await expect(cartPage.inventoryItemNames).toHaveText('Sauce Labs Backpack');
+    await test.step('Ouvrir le panier et vérifier son affichage', async () => {
 
-    // Vérifier le prix du produit
-    await expect(cartPage.inventoryItemPrices).toHaveText(pricePageProduct);
-    console.log('Prix du produit sur la page panier :', await cartPage.inventoryItemPrices.innerText());
+      // Ouvrir le panier
+      await inventoryPage.clickToCart();
 
-    // Vérifier la quantité du produit
-    await expect(cartPage.itemQuantity).toHaveText('1');
+      // Vérifier que la page Panier est affichée
+      await expect(cartPage.title).toHaveText('Your Cart');
+
+    });
+    await test.step('Vérifier le nom, le prix et la quantité du produit', async () => {
+
+      // Vérifier le nom du produit
+      await expect(cartPage.inventoryItemNames).toHaveText('Sauce Labs Backpack');
+
+      // Vérifier le prix du produit
+      await expect(cartPage.inventoryItemPrices).toHaveText(pricePageProduct);
+
+      console.log('Prix du produit sur la page panier :', await cartPage.inventoryItemPrices.innerText());
+
+      // Vérifier la quantité du produit
+      await expect(cartPage.itemQuantity).toHaveText('1');
+
+    });
 
   });
 
@@ -64,29 +79,46 @@ test.describe('Panier', () => {
     const inventoryPage = new InventoryPage(page);
     const cartPage = new CartPage(page);
 
-    // Ajouter un produit au panier
-    await inventoryPage.addToCart('Sauce Labs Backpack');
+    await test.step('Ajouter le produit Sauce Labs Backpack au panier', async () => {
 
-    // Vérifier que le compteur du panier affiche 1
-    await expect(inventoryPage.shoppingCartBadge).toHaveText('1');
+      await inventoryPage.addToCart('Sauce Labs Backpack');
 
-    // Ouvrir le panier
-    await inventoryPage.clickToCart();
+    });
 
-    // Vérifier que la page panier est affichée
-    await expect(cartPage.title).toHaveText('Your Cart');
+    await test.step('Vérifier que le compteur du panier affiche 1', async () => {
 
-    // Vérifier que le produit est présent avant suppression
-    await expect(cartPage.inventoryItemNames).toHaveText('Sauce Labs Backpack');
+      await expect(inventoryPage.shoppingCartBadge).toHaveText('1');
 
-    // Retirer le produit du panier
-    await cartPage.removeFromCart('Sauce Labs Backpack');
+    });
 
-    // Vérifier que le produit n'est plus présent dans le panier
-    await expect(cartPage.inventoryItemNames).toHaveCount(0);
+    await test.step('Ouvrir le panier et vérifier la présence du produit', async () => {
 
-    // Vérifier que le compteur du panier disparaît lorsque le panier est vide
-    await expect(cartPage.shoppingCartBadge).toHaveCount(0);
+      // Ouvrir le panier
+      await inventoryPage.clickToCart();
+
+      // Vérifier que la page panier est affichée
+      await expect(cartPage.title).toHaveText('Your Cart');
+
+      // Vérifier que le produit est présent avant suppression
+      await expect(cartPage.inventoryItemNames).toHaveText('Sauce Labs Backpack');
+
+    });
+
+    await test.step('Retirer le produit Sauce Labs Backpack du panier', async () => {
+
+      await cartPage.removeFromCart('Sauce Labs Backpack');
+
+    });
+
+    await test.step('Vérifier que le produit est supprimé et que le panier est vide', async () => {
+
+      // Vérifier que le produit n'est plus présent dans le panier
+      await expect(cartPage.inventoryItemNames).toHaveCount(0);
+
+      // Vérifier que le compteur du panier disparaît
+      await expect(cartPage.shoppingCartBadge).toHaveCount(0);
+
+    });
 
   });
 
@@ -99,34 +131,60 @@ test.describe('Panier', () => {
     // Mémoriser l'ID technique, le nom et le prix affichés sur la page Products.
     const productReferences: { id: string; name: string; price: string }[] = [];
 
-    for (const product of productsToAdd) {
-      const name = await inventoryPage.getProductNameById(product.id);
-      const price = await inventoryPage.getProductPriceById(product.id);
+    await test.step('Relever les informations des produits et les ajouter au panier', async () => {
 
-      productReferences.push({ id: product.id, name, price });
-      await inventoryPage.addToCartById(product.id);
-    }
+      for (const product of productsToAdd) {
 
+        const name = await inventoryPage.getProductNameById(product.id);
+        const price = await inventoryPage.getProductPriceById(product.id);
+
+        productReferences.push({ id: product.id, name, price });
+
+        await inventoryPage.addToCartById(product.id);
+
+      }
+
+    });
     console.table(productReferences);
 
-    // Vérifier que le compteur du panier correspond au nombre de produits ajoutés.
-    await expect(inventoryPage.shoppingCartBadge).toHaveText(productsToAdd.length.toString());
+    await test.step('Vérifier que le compteur correspond au nombre de produits ajoutés', async () => {
 
-    // Ouvrir le panier.
-    await inventoryPage.clickToCart();
+      await expect(inventoryPage.shoppingCartBadge).toHaveText(
+        productsToAdd.length.toString()
+      );
 
-    // Vérifier que la page panier est affichée.
-    await expect(cartPage.title).toHaveText('Your Cart');
+    });
 
-    // Vérifier que le panier contient exactement le nombre de produits ajoutés.
-    await expect(cartPage.productItems).toHaveCount(productsToAdd.length);
+    await test.step('Ouvrir le panier et vérifier le nombre de produits', async () => {
+
+      // Ouvrir le panier
+      await inventoryPage.clickToCart();
+
+      // Vérifier que la page panier est affichée
+      await expect(cartPage.title).toHaveText('Your Cart');
+
+      // Vérifier que le nombre de produits correspond aux ajouts
+      await expect(cartPage.productItems).toHaveCount(productsToAdd.length);
+
+    });
 
     // Vérifier pour chaque ID que le nom et le prix correspondent aux valeurs relevées sur Products,
     // et que la quantité est égale à 1.
     for (const product of productReferences) {
-      await expect(cartPage.getProductNameById(product.id)).toHaveText(product.name);
-      await expect(cartPage.getProductPriceById(product.id)).toHaveText(product.price);
-      await expect(cartPage.getProductQuantityById(product.id)).toHaveText('1');
+
+      await test.step(`Vérifier le nom, le prix et la quantité : ${product.name}`, async () => {
+
+        // Vérifier le nom du produit
+        await expect(cartPage.getProductNameById(product.id)).toHaveText(product.name);
+
+        // Vérifier le prix du produit
+        await expect(cartPage.getProductPriceById(product.id)).toHaveText(product.price);
+
+        // Vérifier la quantité du produit
+        await expect(cartPage.getProductQuantityById(product.id)).toHaveText('1');
+
+      });
+
     }
 
   });
