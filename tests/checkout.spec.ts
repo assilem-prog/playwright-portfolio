@@ -31,25 +31,51 @@ test.describe('Checkout', () => {
     const cartPage = new CartPage(page);
     const checkoutInformationPage = new CheckoutInformationPage(page);
 
-    // Précondition : le panier contient exactement un produit.
-    await inventoryPage.addToCartById(productsToAdd[0].id);
+    await test.step('Préparer un panier contenant un seul produit', async () => {
 
-    // Ouvrir le panier.
-    await inventoryPage.clickToCart();
-    await expect(cartPage.title).toHaveText('Your Cart');
-    await expect(cartPage.productItems).toHaveCount(1);
+      // Ajouter un produit au panier
+      await inventoryPage.addToCartById(productsToAdd[0].id);
 
-    // Cliquer sur "Checkout".
-    await cartPage.clickCheckout();
+    });
 
-    // Vérifier que la page Checkout: Your Information est affichée.
-    await expect(page).toHaveURL(/checkout-step-one\.html/);
-    await expect(checkoutInformationPage.title).toHaveText('Checkout: Your Information');
+    await test.step('Ouvrir le panier et vérifier qu’il contient un seul produit', async () => {
 
-    // Vérifier que les champs First Name, Last Name et Postal Code sont proposés.
-    await expect(checkoutInformationPage.firstNameInput).toBeVisible();
-    await expect(checkoutInformationPage.lastNameInput).toBeVisible();
-    await expect(checkoutInformationPage.postalCodeInput).toBeVisible();
+      // Ouvrir le panier
+      await inventoryPage.clickToCart();
+
+      // Vérifier que la page panier est affichée
+      await expect(cartPage.title).toHaveText('Your Cart');
+
+      // Vérifier que le panier contient exactement un produit
+      await expect(cartPage.productItems).toHaveCount(1);
+
+    });
+
+    await test.step('Accéder au formulaire Checkout', async () => {
+
+      // Cliquer sur Checkout
+      await cartPage.clickCheckout();
+
+      // Vérifier la navigation vers le formulaire
+      await expect(page).toHaveURL(/checkout-step-one\.html/);
+
+      // Vérifier le titre de la page
+      await expect(checkoutInformationPage.title).toHaveText('Checkout: Your Information');
+
+    });
+
+    await test.step('Vérifier la présence des trois champs du formulaire', async () => {
+
+      // Vérifier que le champ First Name est visible
+      await expect(checkoutInformationPage.firstNameInput).toBeVisible();
+
+      // Vérifier que le champ Last Name est visible
+      await expect(checkoutInformationPage.lastNameInput).toBeVisible();
+
+      // Vérifier que le champ Postal Code est visible
+      await expect(checkoutInformationPage.postalCodeInput).toBeVisible();
+
+    });
 
   });
 
@@ -61,22 +87,44 @@ test.describe('Checkout', () => {
     const checkoutInformationPage = new CheckoutInformationPage(page);
     const checkoutOverviewPage = new CheckoutOverviewPage(page);
 
-    // Précondition : un produit dans le panier et page Checkout: Your Information ouverte.
-    await inventoryPage.addToCartById(productsToAdd[0].id);
-    await inventoryPage.clickToCart();
-    await cartPage.clickCheckout();
+    await test.step('Préparer le panier et accéder au formulaire Checkout', async () => {
 
-    // Renseigner First Name, Last Name et Postal Code.
-    await checkoutInformationPage.firstNameInput.fill(customerInformation.firstName);
-    await checkoutInformationPage.lastNameInput.fill(customerInformation.lastName);
-    await checkoutInformationPage.postalCodeInput.fill(customerInformation.postalCode);
+      // Ajouter un produit au panier
+      await inventoryPage.addToCartById(productsToAdd[0].id);
 
-    // Cliquer sur "Continue".
-    await checkoutInformationPage.clickContinue();
+      // Ouvrir le panier
+      await inventoryPage.clickToCart();
 
-    // Vérifier que la page Checkout: Overview est affichée (son contenu n'est pas vérifié).
-    await expect(page).toHaveURL(/checkout-step-two\.html/);
-    await expect(checkoutOverviewPage.title).toHaveText('Checkout: Overview');
+      // Accéder au formulaire Checkout
+      await cartPage.clickCheckout();
+
+    });
+
+    await test.step('Renseigner les trois champs obligatoires', async () => {
+
+      // Renseigner le prénom
+      await checkoutInformationPage.firstNameInput.fill(customerInformation.firstName);
+
+      // Renseigner le nom
+      await checkoutInformationPage.lastNameInput.fill(customerInformation.lastName);
+
+      // Renseigner le code postal
+      await checkoutInformationPage.postalCodeInput.fill(customerInformation.postalCode);
+
+    });
+
+    await test.step('Valider le formulaire et vérifier l’accès à Checkout: Overview', async () => {
+
+      // Cliquer sur Continue
+      await checkoutInformationPage.clickContinue();
+
+      // Vérifier la navigation vers Checkout: Overview
+      await expect(page).toHaveURL(/checkout-step-two\.html/);
+
+      // Vérifier le titre de la page
+      await expect(checkoutOverviewPage.title).toHaveText('Checkout: Overview');
+
+    });
 
   });
 
@@ -87,25 +135,47 @@ test.describe('Checkout', () => {
     const cartPage = new CartPage(page);
     const checkoutInformationPage = new CheckoutInformationPage(page);
 
-    // Précondition : un produit dans le panier et page Checkout: Your Information ouverte.
-    await inventoryPage.addToCartById(productsToAdd[0].id);
-    await inventoryPage.clickToCart();
-    await cartPage.clickCheckout();
+    await test.step('Préparer le panier et accéder au formulaire Checkout', async () => {
 
-    // Renseigner uniquement Last Name et Postal Code.
-    await checkoutInformationPage.lastNameInput.fill(customerInformation.lastName);
-    await checkoutInformationPage.postalCodeInput.fill(customerInformation.postalCode);
+      // Ajouter un produit au panier
+      await inventoryPage.addToCartById(productsToAdd[0].id);
 
-    // Cliquer sur "Continue".
-    await checkoutInformationPage.clickContinue();
+      // Ouvrir le panier
+      await inventoryPage.clickToCart();
 
-    // Vérifier que l'utilisateur reste sur Checkout: Your Information.
-    await expect(page).toHaveURL(/checkout-step-one\.html/);
-    await expect(checkoutInformationPage.title).toHaveText('Checkout: Your Information');
+      // Accéder au formulaire Checkout
+      await cartPage.clickCheckout();
 
-    // Vérifier qu'un seul message d'erreur est affiché, avec le texte attendu.
-    await expect(checkoutInformationPage.errorMessage).toHaveCount(1);
-    await expect(checkoutInformationPage.errorMessage).toHaveText('Error: First Name is required');
+    });
+
+    await test.step('Renseigner le nom et le code postal en laissant le prénom vide', async () => {
+
+      // Renseigner le nom
+      await checkoutInformationPage.lastNameInput.fill(customerInformation.lastName);
+
+      // Renseigner le code postal
+      await checkoutInformationPage.postalCodeInput.fill(customerInformation.postalCode);
+
+    });
+
+    await test.step('Vérifier le refus de validation et le message d’erreur du prénom obligatoire', async () => {
+
+      // Cliquer sur Continue
+      await checkoutInformationPage.clickContinue();
+
+      // Vérifier que l'utilisateur reste sur le formulaire
+      await expect(page).toHaveURL(/checkout-step-one\.html/);
+
+      // Vérifier le titre de la page
+      await expect(checkoutInformationPage.title).toHaveText('Checkout: Your Information');
+
+      // Vérifier qu'un seul message d'erreur est affiché
+      await expect(checkoutInformationPage.errorMessage).toHaveCount(1);
+
+      // Vérifier le texte du message d'erreur
+      await expect(checkoutInformationPage.errorMessage).toHaveText('Error: First Name is required');
+
+    });
 
   });
 
@@ -116,25 +186,47 @@ test.describe('Checkout', () => {
     const cartPage = new CartPage(page);
     const checkoutInformationPage = new CheckoutInformationPage(page);
 
-    // Précondition : un produit dans le panier et page Checkout: Your Information ouverte.
-    await inventoryPage.addToCartById(productsToAdd[0].id);
-    await inventoryPage.clickToCart();
-    await cartPage.clickCheckout();
+    await test.step('Préparer le panier et accéder au formulaire Checkout', async () => {
 
-    // Renseigner uniquement First Name et Postal Code.
-    await checkoutInformationPage.firstNameInput.fill(customerInformation.firstName);
-    await checkoutInformationPage.postalCodeInput.fill(customerInformation.postalCode);
+      // Ajouter un produit au panier
+      await inventoryPage.addToCartById(productsToAdd[0].id);
 
-    // Cliquer sur "Continue".
-    await checkoutInformationPage.clickContinue();
+      // Ouvrir le panier
+      await inventoryPage.clickToCart();
 
-    // Vérifier que l'utilisateur reste sur Checkout: Your Information.
-    await expect(page).toHaveURL(/checkout-step-one\.html/);
-    await expect(checkoutInformationPage.title).toHaveText('Checkout: Your Information');
+      // Accéder au formulaire Checkout
+      await cartPage.clickCheckout();
 
-    // Vérifier qu'un seul message d'erreur est affiché, avec le texte attendu.
-    await expect(checkoutInformationPage.errorMessage).toHaveCount(1);
-    await expect(checkoutInformationPage.errorMessage).toHaveText('Error: Last Name is required');
+    });
+
+    await test.step('Renseigner le prénom et le code postal en laissant le nom vide', async () => {
+
+      // Renseigner le prénom
+      await checkoutInformationPage.firstNameInput.fill(customerInformation.firstName);
+
+      // Renseigner le code postal
+      await checkoutInformationPage.postalCodeInput.fill(customerInformation.postalCode);
+
+    });
+
+    await test.step('Vérifier le refus de validation et le message d’erreur du nom obligatoire', async () => {
+
+      // Cliquer sur Continue
+      await checkoutInformationPage.clickContinue();
+
+      // Vérifier que l'utilisateur reste sur le formulaire
+      await expect(page).toHaveURL(/checkout-step-one\.html/);
+
+      // Vérifier le titre de la page
+      await expect(checkoutInformationPage.title).toHaveText('Checkout: Your Information');
+
+      // Vérifier qu'un seul message d'erreur est affiché
+      await expect(checkoutInformationPage.errorMessage).toHaveCount(1);
+
+      // Vérifier le texte du message d'erreur
+      await expect(checkoutInformationPage.errorMessage).toHaveText('Error: Last Name is required');
+
+    });
 
   });
 
@@ -145,25 +237,47 @@ test.describe('Checkout', () => {
     const cartPage = new CartPage(page);
     const checkoutInformationPage = new CheckoutInformationPage(page);
 
-    // Précondition : un produit dans le panier et page Checkout: Your Information ouverte.
-    await inventoryPage.addToCartById(productsToAdd[0].id);
-    await inventoryPage.clickToCart();
-    await cartPage.clickCheckout();
+    await test.step('Préparer le panier et accéder au formulaire Checkout', async () => {
 
-    // Renseigner uniquement First Name et Last Name.
-    await checkoutInformationPage.firstNameInput.fill(customerInformation.firstName);
-    await checkoutInformationPage.lastNameInput.fill(customerInformation.lastName);
+      // Ajouter un produit au panier
+      await inventoryPage.addToCartById(productsToAdd[0].id);
 
-    // Cliquer sur "Continue".
-    await checkoutInformationPage.clickContinue();
+      // Ouvrir le panier
+      await inventoryPage.clickToCart();
 
-    // Vérifier que l'utilisateur reste sur Checkout: Your Information.
-    await expect(page).toHaveURL(/checkout-step-one\.html/);
-    await expect(checkoutInformationPage.title).toHaveText('Checkout: Your Information');
+      // Accéder au formulaire Checkout
+      await cartPage.clickCheckout();
 
-    // Vérifier qu'un seul message d'erreur est affiché, avec le texte attendu.
-    await expect(checkoutInformationPage.errorMessage).toHaveCount(1);
-    await expect(checkoutInformationPage.errorMessage).toHaveText('Error: Postal Code is required');
+    });
+
+    await test.step('Renseigner le prénom et le nom en laissant le code postal vide', async () => {
+
+      // Renseigner le prénom
+      await checkoutInformationPage.firstNameInput.fill(customerInformation.firstName);
+
+      // Renseigner le nom
+      await checkoutInformationPage.lastNameInput.fill(customerInformation.lastName);
+
+    });
+
+    await test.step('Vérifier le refus de validation et le message d’erreur du code postal obligatoire', async () => {
+
+      // Cliquer sur Continue
+      await checkoutInformationPage.clickContinue();
+
+      // Vérifier que l'utilisateur reste sur le formulaire
+      await expect(page).toHaveURL(/checkout-step-one\.html/);
+
+      // Vérifier le titre de la page
+      await expect(checkoutInformationPage.title).toHaveText('Checkout: Your Information');
+
+      // Vérifier qu'un seul message d'erreur est affiché
+      await expect(checkoutInformationPage.errorMessage).toHaveCount(1);
+
+      // Vérifier le texte du message d'erreur
+      await expect(checkoutInformationPage.errorMessage).toHaveText('Error: Postal Code is required');
+
+    });
 
   });
 
@@ -174,42 +288,88 @@ test.describe('Checkout', () => {
     const cartPage = new CartPage(page);
     const checkoutInformationPage = new CheckoutInformationPage(page);
 
-    // Précondition : le panier contient plusieurs produits différents.
-    for (const product of productsToAdd) {
-      await inventoryPage.addToCartById(product.id);
-    }
+    await test.step('Ajouter plusieurs produits différents au panier', async () => {
 
-    // Ouvrir le panier.
-    await inventoryPage.clickToCart();
-    await expect(cartPage.title).toHaveText('Your Cart');
+      // Ajouter chaque produit défini dans les données de test
+      for (const product of productsToAdd) {
+        await inventoryPage.addToCartById(product.id);
+      }
+
+    });
+
+    await test.step('Ouvrir le panier et vérifier son affichage', async () => {
+
+      // Ouvrir le panier
+      await inventoryPage.clickToCart();
+
+      // Vérifier que la page panier est affichée
+      await expect(cartPage.title).toHaveText('Your Cart');
+
+    });
 
     // Mémoriser le contenu du panier (nom et quantité par ID technique) avant le checkout.
     const recordedItemCount = await cartPage.productItems.count();
     const cartReferences: { id: string; name: string; quantity: string }[] = [];
 
-    for (const product of productsToAdd) {
-      const name = await cartPage.getProductNameById(product.id).innerText();
-      const quantity = await cartPage.getProductQuantityById(product.id).innerText();
-      cartReferences.push({ id: product.id, name, quantity });
-    }
+    await test.step('Mémoriser le nom et la quantité de chaque produit avant le Checkout', async () => {
 
-    // Cliquer sur "Checkout" et vérifier que la page Checkout: Your Information est affichée.
-    await cartPage.clickCheckout();
-    await expect(checkoutInformationPage.title).toHaveText('Checkout: Your Information');
+      for (const product of productsToAdd) {
 
-    // Cliquer sur "Cancel" sans saisir d'information.
-    await checkoutInformationPage.clickCancel();
+        // Récupérer le nom du produit
+        const name = await cartPage.getProductNameById(product.id).innerText();
 
-    // Vérifier que le panier est affiché.
-    await expect(page).toHaveURL(/cart\.html/);
-    await expect(cartPage.title).toHaveText('Your Cart');
+        // Récupérer la quantité du produit
+        const quantity = await cartPage.getProductQuantityById(product.id).innerText();
 
-    // Vérifier que le panier contient les mêmes produits et quantités qu'avant le checkout.
-    await expect(cartPage.productItems).toHaveCount(recordedItemCount);
+        // Enregistrer les informations du produit
+        cartReferences.push({ id: product.id, name, quantity });
+
+      }
+
+    });
+
+    await test.step('Accéder au formulaire Checkout et vérifier son affichage', async () => {
+
+      // Cliquer sur Checkout
+      await cartPage.clickCheckout();
+
+      // Vérifier que le formulaire Checkout est affiché
+      await expect(checkoutInformationPage.title).toHaveText('Checkout: Your Information');
+
+    });
+
+    await test.step('Annuler le Checkout et vérifier le retour au panier', async () => {
+
+      // Cliquer sur Cancel sans renseigner le formulaire
+      await checkoutInformationPage.clickCancel();
+
+      // Vérifier que l'utilisateur revient sur la page panier
+      await expect(page).toHaveURL(/cart\.html/);
+
+      // Vérifier le titre de la page
+      await expect(cartPage.title).toHaveText('Your Cart');
+
+    });
+
+    await test.step('Vérifier que le nombre de produits est inchangé après annulation', async () => {
+
+      // Comparer le nombre de produits avec celui mémorisé avant le Checkout
+      await expect(cartPage.productItems).toHaveCount(recordedItemCount);
+
+    });
 
     for (const product of cartReferences) {
-      await expect(cartPage.getProductNameById(product.id)).toHaveText(product.name);
-      await expect(cartPage.getProductQuantityById(product.id)).toHaveText(product.quantity);
+
+      await test.step(`Vérifier le nom et la quantité après annulation : ${product.name}`, async () => {
+
+        // Vérifier que le nom du produit est inchangé
+        await expect(cartPage.getProductNameById(product.id)).toHaveText(product.name);
+
+        // Vérifier que la quantité du produit est inchangée
+        await expect(cartPage.getProductQuantityById(product.id)).toHaveText(product.quantity);
+
+      });
+
     }
 
   });
