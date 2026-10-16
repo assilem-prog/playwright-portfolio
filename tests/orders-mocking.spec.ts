@@ -114,7 +114,7 @@ test('CT03 - Recharger les commandes après une erreur 500', async ({ page }) =>
     const orderRow = page.getByRole('row').filter({ hasText: 'ORD-QA-002' });
 
     await expect(orderRow).toBeVisible();
-    await expect(orderRow).toContainText('QA Recovery');
+    await expect(orderRow).toContainText('QA Recovery - ERREUR CI');
     await expect(orderRow).toContainText('Test Mouse');
 
     await expect(page.locator('tbody tr')).toHaveCount(1);
