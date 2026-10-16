@@ -109,6 +109,15 @@ test('CT03 - Recharger les commandes après une erreur 500', async ({ page }) =>
     expect(response.status()).toBe(200);
     expect(callCount).toBe(2);
 
+    await expect(page.getByText('Could not load orders: Server responded 500')).not.toBeVisible();
+
+    const orderRow = page.getByRole('row').filter({ hasText: 'ORD-QA-002' });
+
+    await expect(orderRow).toBeVisible();
+    await expect(orderRow).toContainText('QA Recovery');
+    await expect(orderRow).toContainText('Test Mouse');
+
+    await expect(page.locator('tbody tr')).toHaveCount(1);
 
 });
 
