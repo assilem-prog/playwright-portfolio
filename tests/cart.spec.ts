@@ -1,31 +1,15 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/login.page';
+import { test, expect } from '../fixtures/authenticated';
 import { InventoryPage } from '../pages/inventory.page';
-import { users } from '../test-data/users';
 import { CartPage } from '../pages/cart.page';
 import { productsToAdd } from '../test-data/products';
 
 
 test.describe('Panier', () => {
 
-  test.beforeEach(async ({ page }) => {
+  test('CT01 - Vérifier le contenu du panier après ajout d’un produit', async ({ authenticatedPage }) => {
 
-    // Instancier les Page Objects nécessaires.
-    const loginPage = new LoginPage(page);
-
-    await loginPage.goto();
-
-    await loginPage.login(
-      users.standard.username,
-      users.standard.password
-    );
-  });
-
-
-  test('CT01 - Vérifier le contenu du panier après ajout d’un produit', async ({ page }) => {
-
-    const inventoryPage = new InventoryPage(page);
-    const cartPage = new CartPage(page);
+    const inventoryPage = new InventoryPage(authenticatedPage);
+    const cartPage = new CartPage(authenticatedPage);
 
     await test.step('Ajouter un produit au panier depuis le catalogue', async () => {
 
@@ -56,6 +40,7 @@ test.describe('Panier', () => {
       await expect(cartPage.title).toHaveText('Your Cart');
 
     });
+
     await test.step('Vérifier le nom, le prix et la quantité du produit', async () => {
 
       // Vérifier le nom du produit
@@ -73,11 +58,10 @@ test.describe('Panier', () => {
 
   });
 
+  test('CT02 - Retirer un produit du panier', async ({ authenticatedPage }) => {
 
-  test('CT02 - Retirer un produit du panier', async ({ page }) => {
-
-    const inventoryPage = new InventoryPage(page);
-    const cartPage = new CartPage(page);
+    const inventoryPage = new InventoryPage(authenticatedPage);
+    const cartPage = new CartPage(authenticatedPage);
 
     await test.step('Ajouter le produit Sauce Labs Backpack au panier', async () => {
 
@@ -123,10 +107,10 @@ test.describe('Panier', () => {
   });
 
 
-  test('CT03 - Vérifier le contenu du panier après l’ajout de plusieurs produits', async ({ page }) => {
+  test('CT03 - Vérifier le contenu du panier après l’ajout de plusieurs produits', async ({ authenticatedPage }) => {
 
-    const inventoryPage = new InventoryPage(page);
-    const cartPage = new CartPage(page);
+    const inventoryPage = new InventoryPage(authenticatedPage);
+    const cartPage = new CartPage(authenticatedPage);
 
     // Mémoriser l'ID technique, le nom et le prix affichés sur la page Products.
     const productReferences: { id: string; name: string; price: string }[] = [];
@@ -145,13 +129,12 @@ test.describe('Panier', () => {
       }
 
     });
+
     console.table(productReferences);
 
     await test.step('Vérifier que le compteur correspond au nombre de produits ajoutés', async () => {
 
-      await expect(inventoryPage.shoppingCartBadge).toHaveText(
-        productsToAdd.length.toString()
-      );
+      await expect(inventoryPage.shoppingCartBadge).toHaveText(productsToAdd.length.toString());
 
     });
 
