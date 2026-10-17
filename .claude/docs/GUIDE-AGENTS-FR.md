@@ -109,6 +109,7 @@ Analyser une User Story, une exigence ou des critères d’acceptation avant la 
 ### Ce qu’il fait
 
 Il identifie notamment :
+- la qualité de la User Story selon les critères INVEST ;
 - les règles métier explicitement écrites ;
 - la testabilité du besoin ;
 - les ambiguïtés ;
@@ -138,6 +139,7 @@ Read
 
 Le rapport est structuré autour de :
 - Requirement summary
+- INVEST review
 - Testability
 - Explicit business rules
 - Acceptance criteria review
@@ -145,6 +147,66 @@ Le rapport est structuré autour de :
 - Questions for PO / BA
 - Risks and edge cases
 - Proposed test scenarios
+
+Les questions PO / BA sont numérotées (Q1, Q2, …) pour que les autres sections, notamment la revue INVEST, puissent y renvoyer sans les répéter.
+
+### Revue INVEST
+
+La section « INVEST review » évalue la qualité de la User Story selon six critères, chacun dans une sous-section dédiée :
+
+| Critère | Ce qui est évalué |
+|---|---|
+| I — Independent | Les dépendances fonctionnelles ou techniques mentionnées dans le texte fourni. L'agent n'inspecte pas le repository pour en chercher. |
+| N — Negotiable | La possibilité de discuter des modalités de réalisation sans perdre l'objectif métier. |
+| V — Valuable | Une valeur métier ou utilisateur identifiable. |
+| E — Estimable | Des informations suffisantes pour que l'équipe puisse estimer. L'agent ne fait aucune estimation lui-même. |
+| S — Small | Un périmètre qui paraît assez limité pour un sprint. Le jugement final dépend du contexte de l'équipe. |
+| T — Testable | Des critères d'acceptation observables, mesurables et vérifiables. |
+
+Pour chaque critère, l'agent indique :
+- **Status** : Conforme / À clarifier / Non conforme ;
+- **Facts** : ce que dit le texte fourni ;
+- **Assumptions** : ses interprétations, signalées comme telles ;
+- **Missing information** : ce qui manque pour juger ;
+- **Recommended question / action** : renvoi vers les questions numérotées (« See Q2 ») plutôt que leur répétition.
+
+Règles d'utilisation des statuts :
+- INVEST est une aide à la discussion, pas une règle absolue ni un critère bloquant pour la story.
+- L'absence d'information donne **À clarifier**, jamais **Non conforme**.
+- **Non conforme** est réservé au cas où le texte fourni montre lui-même que le critère n'est pas respecté, par exemple des critères d'acceptation subjectifs comme « un message clair ».
+- **Conforme** suppose des éléments suffisants pour le justifier.
+- Un statut INVEST n'est ni une sévérité, ni une priorité, ni un niveau de risque.
+
+### INVEST-T et verdict de testabilité
+
+Ces deux évaluations mesurent des choses différentes et peuvent légitimement diverger :
+- **INVEST-T** évalue la qualité des critères d'acceptation tels qu'ils sont rédigés ;
+- **Testability** (Testable / Partially testable / Not sufficiently testable) évalue la part des comportements attendus qui est déjà vérifiable.
+
+Exemple : avec un AC « le système gère correctement toutes les erreurs », INVEST-T peut être « Non conforme » alors que la story reste « Partially testable », parce que l'affichage d'un message et la relance restent vérifiables.
+
+Pour éviter les répétitions, INVEST-T se limite à un statut et une ou deux phrases de justification. Le détail de l'analyse figure dans les sections Testability et Acceptance criteria review.
+
+### Règles métier, hypothèses et scénarios risk-based
+
+- **Règle métier explicite** : une contrainte sur le comportement attendu qui est écrite dans le texte fourni. L'objectif ou la valeur de la story (la clause « afin de… ») n'est **pas** une règle métier. Il est mentionné à part comme contexte et évalué dans INVEST-V.
+- **Risk-based** : le scénario est motivé par un risque, et son comportement attendu peut être déduit des exigences fournies.
+- **Hypothetical** : le comportement attendu n'est pas défini et doit être supposé. La base est alors Hypothetical, même si le scénario est motivé par un risque. Ses notes indiquent l'hypothèse à confirmer, liée à une question PO / BA.
+- **Pas de comportement inverse déduit** : « afficher un message en cas d'erreur » n'impose pas « ne jamais afficher de message sans erreur ». Un scénario sur le comportement inverse repose sur un comportement supposé : sa base est donc **Hypothetical**.
+
+### Classification des scénarios et doublons
+
+La **Nature** et la **Basis** d'un scénario sont indépendantes : un scénario Hypothetical peut être Positive, Negative ou Boundary.
+
+| Nature | Usage |
+|---|---|
+| Positive | Comportement attendu dans des conditions valides, y compris le résultat nominal d'un changement d'état. |
+| Negative | Rejet, prévention, gestion d'erreur ou conditions invalides. |
+| Boundary | Comportement à une limite ou un seuil, juste avant et juste après. |
+
+- Un changement d'état (par exemple, passer d'une erreur à une liste chargée) n'est **pas** automatiquement un test Boundary. Il est classé Positive ou Negative selon ce qu'il vérifie.
+- Un test Boundary reste possible avec un seuil **hypothétique** (par exemple une limite de tentatives non spécifiée). Le scénario est alors classé Hypothetical, et ses notes présentent le seuil comme une hypothèse à confirmer, jamais comme une exigence validée.
+- Les doublons sont fusionnés : deux scénarios qui vérifient le même comportement dans les mêmes conditions n'en forment qu'un. Des scénarios séparés ne sont gardés que si les conditions ou le résultat attendu diffèrent.
 
 ### Pourquoi cet agent est important
 
