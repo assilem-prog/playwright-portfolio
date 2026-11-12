@@ -122,3 +122,59 @@ test('CT03 - Recharger les commandes après une erreur 500', async ({ page }) =>
 });
 
 
+test('CT04 - Relance en échec après une erreur HTTP 500', async ({ page }) => {
+
+    let callCount = 0;
+
+    await page.route('**/playwright/api/orders.json*', async route => {
+
+        callCount++;
+
+        await route.fulfill({
+            status: 500,
+            contentType: 'application/json',
+            body: JSON.stringify({ orders: [] })
+        });
+
+    });
+
+    const errorMessage = page.getByText('Could not load orders: Server responded 500');
+    const reloadButton = page.getByRole('button', { name: 'Reload orders' });
+
+    await test.step('Charger la page et vérifier l\'erreur serveur 500 initiale', async () => {
+
+        const firstResponsePromise = page.waitForResponse(response => response.url().includes('/playwright/api/orders.json'));
+
+        await page.goto('https://app.thetestingacademy.com/playwright/network-mock');
+
+        const firstResponse = await firstResponsePromise;
+
+        expect(firstResponse.status()).toBe(500);
+
+        await expect(errorMessage).toBeVisible();
+
+        expect(callCount).toBe(1);
+
+    });
+
+    await test.step('Relancer le chargement et vérifier que l\'erreur 500 persiste', async () => {
+
+        const secondResponsePromise = page.waitForResponse(response => response.url().includes('/playwright/api/orders.json'));
+
+        await reloadButton.click();
+
+        const secondResponse = await secondResponsePromise;
+
+        expect(secondResponse.status()).toBe(500);
+        expect(callCount).toBe(2);
+
+        await expect(errorMessage).toBeVisible();
+
+        await expect(reloadButton).toBeVisible();
+        await expect(reloadButton).toBeEnabled();
+
+    });
+
+});
+
+
